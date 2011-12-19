@@ -1,14 +1,15 @@
-ActiveRecord::Base.instance_eval do
+module TypedSerialize
 
   def typed_serialize(attr_name, class_name, *attributes)
     serialize(attr_name, class_name)
 
     after_initialize :typed_serialize_init
 
-    def typed_serialize_init
+    define_method(:typed_serialize_init) do
       send("#{attr_name}=", class_name.new) unless send(attr_name)
     end
-    private_class_method :typed_serialize_init
+
+    private :typed_serialize_init
 
     if attributes.last.is_a?(Hash)
       attributes.last[:in] = attr_name
@@ -25,12 +26,13 @@ ActiveRecord::Base.instance_eval do
   end
 
   def serialized_reader(*attributes)
+    attributes = attributes.flatten
     options = attributes.pop
     unless options.is_a?(Hash) and (owner = options[:in])
       raise ArgumentError, "Serialized reader needs a target. Supply an options hash with a :in key as the last argument (e.g. serialized_reader :hello, :in => :greeter)."
     end
 
-    attributes.flatten.each do |attr_name|
+    attributes.each do |attr_name|
       method_name = options[:prefix] ? "#{options[:in]}_#{attr_name}" : attr_name
       define_method(method_name) do
         send(options[:in])[attr_name]
@@ -39,12 +41,13 @@ ActiveRecord::Base.instance_eval do
   end
 
   def serialized_writer(*attributes)
+    attributes = attributes.flatten
     options = attributes.pop
     unless options.is_a?(Hash) and (owner = options[:in])
       raise ArgumentError, "Serialized writer needs a target. Supply an options hash with a :in key as the last argument (e.g. serialized_writer :hello, :in => :greeter)."
     end
-    
-    attributes.flatten.each do |attr_name|
+
+    attributes.each do |attr_name|
       method_name = options[:prefix] ? "#{options[:in]}_#{attr_name}" : attr_name
       define_method("#{method_name}=") do |value|
         send(options[:in])[attr_name] = value
@@ -53,3 +56,5 @@ ActiveRecord::Base.instance_eval do
   end
 
 end
+
+ActiveRecord::Base.send :extend , TypedSerialize

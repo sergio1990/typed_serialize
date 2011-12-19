@@ -22,7 +22,8 @@ type. This is especially nice for serialized hashes and new models.
   class User < ActiveRecord::Base
     typed_serialize :settings, Hash
 
-    serialized_accessor :settings, :photo, :city, :nickname
+    #parametr :in is required and describe hash owner 
+    serialized_accessor :photo, :city, :nickname, :in=>:settings
 
   end
 
@@ -36,6 +37,7 @@ type. This is especially nice for serialized hashes and new models.
 or even better
 
   class User < ActiveRecord::Base
+    # paramter :in set automatic
     typed_serialize :settings, Hash, :photo, :city, :nickname
 
   end
@@ -43,6 +45,22 @@ or even better
   u = User.new(:city=>'NY')
   u.city
   => 'NY'
+
+If you want add prefix to you virtual attributes it's easy enough - just add <b>:prefix=>true</b> to options
+
+  class User < ActiveRecord::Base
+    typed_serialize :settings, Hash, :photo, :prefix=>true
+
+    #or
+
+    serialized_accessor :logo, :in=>:settings, :prefix=>true
+
+  end
+
+  user = User.new
+  user.settings_logo = "crazy_avatar.jpg"
+  user.settings
+  => {:logo=>"crazy_avatar.jpg"}
 
 Also avalaible <b>serialized_reader</b> and <b>serialized_writer</b>.
 

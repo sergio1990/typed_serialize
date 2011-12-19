@@ -39,9 +39,8 @@ describe ActiveRecord::Base do
   end
 
   it 'allow prefix' do
-    mouse_hash = {:package_manual=>true, :package_battery=>"12V"}
-    Mouse.create(mouse_hash)
-    Mouse.last.package.should == mouse_hash
+    Mouse.create(:package_manual=>true, :package_battery=>"12V")
+    Mouse.last.package.should == {:manual=>true, :battery=>"12V"}
   end
 
 end
