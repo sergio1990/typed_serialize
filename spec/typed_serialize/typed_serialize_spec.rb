@@ -13,6 +13,12 @@ describe ActiveRecord::Base do
     mouse.info.should == test_hash
   end
 
+  it 'should recover from factories' do
+    attrs = {:color=>%w{blue green violet}, :price=>12, :manufacture=>[{:usa=>"NY", :france=>"Paris", :russia=>"Moscow"}]}
+    Factory(:mouse, attrs)
+    Mouse.first.info.should == attrs
+  end
+
   it 'should allow serialized accessors' do
     mouse = Mouse.new
     mouse.manufacture = "A4Tech"
@@ -30,6 +36,12 @@ describe ActiveRecord::Base do
     test_hash = {:size=>'Large', :weight=>'122 gr'}
     mouse = Mouse.new(test_hash)
     mouse.info.should == test_hash
+  end
+
+  it 'allow prefix' do
+    mouse_hash = {:package_manual=>true, :package_battery=>"12V"}
+    Mouse.create(mouse_hash)
+    Mouse.last.package.should == mouse_hash
   end
 
 end
