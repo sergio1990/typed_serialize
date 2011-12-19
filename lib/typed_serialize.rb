@@ -4,7 +4,7 @@ module TypedSerialize
     serialize(attr_name, class_name)
 
     define_method(attr_name) do
-      if(super_value = super)
+      if(super_value = super()).is_a?(class_name)
         super_value
       else
         send("#{attr_name}=", class_name.new)
