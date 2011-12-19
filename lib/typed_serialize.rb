@@ -4,8 +4,11 @@ module TypedSerialize
     serialize(attr_name, class_name)
 
     define_method(attr_name) do
-      if(super_value = super()).is_a?(class_name)
+      case (super_value = super())
+      when class_name
         super_value
+      when String #serialized super() missed (got in Factory Girl)
+        object_from_yaml(super_value)
       else
         send("#{attr_name}=", class_name.new)
       end
