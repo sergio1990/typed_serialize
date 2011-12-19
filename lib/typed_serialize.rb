@@ -3,13 +3,13 @@ module TypedSerialize
   def typed_serialize(attr_name, class_name, *attributes)
     serialize(attr_name, class_name)
 
-    after_initialize :typed_serialize_init
-
-    define_method(:typed_serialize_init) do
-      send("#{attr_name}=", class_name.new) unless send(attr_name)
+    define_method(attr_name) do
+      if(super_value = super)
+        super_value
+      else
+        send("#{attr_name}=", class_name.new)
+      end
     end
-
-    private :typed_serialize_init
 
     if attributes.last.is_a?(Hash)
       attributes.last[:in] = attr_name
